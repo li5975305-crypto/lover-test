@@ -3,221 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人格代码解析：智性恋爱报告</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>人格代码解析：亲密关系定位报告</title>
     <style>
         :root {
-            --brand-mint: #98d8d8;
-            --brand-purple: #a29bfe;
-            --bg-soft: #fcfdfe;
+            --bg: #fdfdfd;
             --text-main: #2d3436;
             --text-sub: #636e72;
-            --card-shadow: 0 10px 40px rgba(0,0,0,0.03);
+            --accent: #2d3436; /* 智性深灰 */
+            --border: #eeeeee;
         }
         body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background-color: var(--bg-soft);
+            font-family: 'Optima', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
         #app {
             width: 90%;
-            max-width: 480px;
-            padding: 20px;
-        }
-        .container {
+            max-width: 460px;
             background: #fff;
-            border-radius: 32px;
-            padding: 40px 30px;
-            box-shadow: var(--card-shadow);
-            text-align: center;
+            padding: 50px 30px;
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
         }
         /* 进度条 */
-        .progress-bar { height: 3px; background: #f0f0f0; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
-        #progress-inner { height: 100%; background: var(--brand-mint); width: 0%; transition: 0.5s ease; }
+        .progress-container { height: 1px; background: #eee; margin-bottom: 50px; }
+        #progress-bar { height: 100%; background: #000; width: 0%; transition: 0.5s ease; }
         
         /* 题目样式 */
-        h2 { font-size: 1.3rem; line-height: 1.6; margin-bottom: 30px; font-weight: 600; }
-        .option-btn {
+        .q-header { font-size: 0.8rem; color: #999; letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase; }
+        h2 { font-weight: 500; font-size: 1.25rem; line-height: 1.6; margin-bottom: 35px; margin-top: 0; }
+        .option {
             display: block; width: 100%; padding: 20px; margin-bottom: 15px;
-            border: 1px solid #f0f0f0; border-radius: 20px; background: #fff;
-            cursor: pointer; transition: 0.2s; font-size: 1rem; text-align: left;
+            border: 1px solid var(--border); border-radius: 2px; background: none;
+            text-align: left; cursor: pointer; transition: 0.3s; font-size: 0.9rem;
             color: var(--text-main);
         }
-        .option-btn:hover { border-color: var(--brand-mint); background: #f9fdfd; transform: translateY(-2px); }
+        .option:hover { background: #000; color: #fff; border-color: #000; }
 
-        /* 结果页布局 */
-        #result-page { display: none; animation: slideUp 0.8s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* 结果页样式 */
+        #result-page { display: none; text-align: left; animation: fadeIn 1s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        #radar-container { width: 100%; max-width: 300px; margin: 0 auto 30px; }
+        .result-header { border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 30px; }
+        .tag { font-size: 0.7rem; letter-spacing: 2px; color: #999; text-transform: uppercase; }
+        .title { font-size: 2rem; font-weight: 600; margin: 10px 0; letter-spacing: -1px; }
         
-        .tag-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; }
-        .tag { padding: 8px 18px; border-radius: 50px; border: 1px solid #eee; font-size: 0.85rem; color: var(--text-sub); }
+        .section-title { font-size: 0.75rem; font-weight: 700; color: #000; margin-top: 35px; text-transform: uppercase; letter-spacing: 2px; border-left: 3px solid #000; padding-left: 10px; }
+        .content { font-size: 0.95rem; line-height: 1.8; color: var(--text-sub); margin: 12px 0; text-align: justify; }
+        .highlight-box { margin-top: 40px; padding: 25px 0; border-top: 1px solid #eee; font-style: italic; font-size: 1.1rem; color: #000; line-height: 1.5; }
         
-        .result-info { text-align: left; background: #fbfbfc; border-radius: 24px; padding: 25px; margin-top: 25px; }
-        .section-label { font-size: 0.8rem; font-weight: bold; color: var(--brand-mint); letter-spacing: 1px; margin-bottom: 10px; display: block; }
-        .section-title { font-size: 1.5rem; font-weight: 600; margin: 5px 0 15px; }
-        .section-content { font-size: 0.95rem; line-height: 1.8; color: var(--text-sub); margin-bottom: 20px; }
-        .quote-box { border-left: 4px solid var(--brand-purple); padding-left: 15px; font-style: italic; color: var(--text-main); font-size: 1rem; }
-
         .restart-btn {
-            margin-top: 30px; width: 100%; padding: 18px; border-radius: 20px;
-            background: var(--text-main); color: #fff; border: none; cursor: pointer;
+            margin-top: 50px; width: 100%; padding: 20px; background: #000; color: #fff;
+            border: none; cursor: pointer; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;
         }
+        #loading { display: none; font-size: 0.9rem; letter-spacing: 2px; color: #999; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="quiz-page" class="container">
-        <div class="progress-bar"><div id="progress-inner"></div></div>
-        <div id="q-text">正在初始化智性题库...</div>
-        <div id="options-container"></div>
+    <div id="quiz-page">
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div class="q-header" id="q-num">Step 01</div>
+        <div id="q-text">正在加载测算维度...</div>
+        <div id="options"></div>
     </div>
 
-    <div id="result-page" class="container">
-        <div id="radar-container"><canvas id="radarChart"></canvas></div>
-        
-        <div class="tag-box" id="res-tags"></div>
+    <div id="loading">ANALYZING PERSONALITY CODE...</div>
 
-        <div class="result-info">
-            <span class="section-label">THE PERSONALITY CODE</span>
-            <div class="section-title" id="res-name"></div>
-            <div class="section-content" id="res-desc"></div>
-            
-            <span class="section-label">契合建议 / SYNERGY</span>
-            <div class="section-content" id="res-synergy"></div>
-
-            <div class="quote-box" id="res-quote"></div>
+    <div id="result-page">
+        <div class="result-header">
+            <span class="tag">Psychology & Relationship Report</span>
+            <div class="title" id="res-name"></div>
         </div>
         
-        <button class="restart-btn" onclick="location.reload()">重新开启解析</button>
-    </div>
-</div>
-
-<script>
-    const questions = [
-        { q: "面对一个复杂的逻辑系统（如法律条文或底层代码），你的第一直觉是？", a: [{t:"拆解运行规律，寻找逻辑漏洞", v:"sci"}, {t:"感受其背后的人性叙事或美学意象", v:"art"}, {t:"评估其商业价值与博弈杠杆", v:"biz"}] },
-        { q: "你认为最理想的智力状态是？", a: [{t:"绝对客观，不被情绪左右的推演能力", v:"sci"}, {t:"极度敏锐，能洞察幽微的情绪张力", v:"art"}, {t:"极度松弛，在复杂局面中游刃有余", v:"biz"}] },
-        { q: "在一段深度关系中，你潜意识里寻找的是？", a: [{t:"一个能引领我、弥补我认知的导师", v:"old"}, {t:"一个能完全契合、共同生长的战友", v:"mid"}, {t:"一个能让我交付温柔、照料其成长的灵魂", v:"young"}] },
-        { q: "当他展现事业野心时，你的真实感受是？", a: [{t:"被那种向上的攻击性深深吸引", v:"high"}, {t:"更希望他能停下来，与我享受当下的平静", v:"low"}, {t:"只要他能掌控好平衡，我支持他的选择", v:"mid"}] },
-        { q: "你最无法忍受伴侣的一面是？", a: [{t:"逻辑混乱，无法进行有效沟通", v:"sci"}, {t:"枯燥乏味，缺乏对美的感知力", v:"art"}, {t:"软弱无能，在现实挑战面前退缩", v:"biz"}] },
-        { q: "如果你们一起面对重大的财务决策，你希望他？", a: [{t:"给出一份数据严密的分析报告", v:"sci"}, {t:"优先考虑这个决定是否符合我们的生活理想", v:"art"}, {t:"利弊权衡后，迅速给出最优解", v:"biz"}] },
-        { q: "关于“年龄差”，你觉得？", a: [{t:"大一点好，那种阅历感让人安心", v:"old"}, {t:"同龄最好，沟通没有代沟", v:"mid"}, {t:"小一点也行，少年感非常治愈", v:"young"}] },
-        { q: "他加班到深夜回家，你最希望他开口说的是？", a: [{t:"“我搞定了那个最难的案子。”", v:"high"}, {t:"“真想立刻抱抱你，把外面都忘了。”", v:"low"}, {t:"“虽然累，但一切都在计划中。”", v:"mid"}] },
-        { q: "你认为浪漫的本质是？", a: [{t:"两个聪明人之间的高频脑电波对撞", v:"sci"}, {t:"在废墟上开出的、毫无道理的花朵", v:"art"}, {t:"在残酷世界里，唯独对你开放的避难所", v:"biz"}] },
-        { q: "当关系出现危机，你更倾向于？", a: [{t:"找个专家或长辈寻求建议", v:"old"}, {t:"两人坐下来，开诚布公地谈判", v:"mid"}, {t:"先冷处理，给彼此情绪缓冲的空间", v:"young"}] },
-        { q: "你理想的居家状态是？", a: [{t:"充满科技感和效率的极简空间", v:"sci"}, {t:"乱中有序，充满生活痕迹和艺术品", v:"art"}, {t:"精致奢华，代表社会地位的居所", v:"biz"}] },
-        { q: "对于“人生目标”，你的态度更接近？", a: [{t:"不进则退，必须持续进化", v:"high"}, {t:"感知当下，拒绝被目标绑架", v:"low"}, {t:"稳扎稳打，建立自己的领地", v:"mid"}] },
-        { q: "当他遭遇挫折，你认为最好的安慰是？", a: [{t:"帮他复盘，找出失败的根本逻辑", v:"sci"}, {t:"安静陪伴，接住他所有的负面情绪", v:"art"}, {t:"调动资源，帮他解决实际的麻烦", v:"biz"}] },
-        { q: "你迷恋那种“反差感”吗？", a: [{t:"是的，喜欢外表冷酷内心稚气的人", v:"young"}, {t:"不，我更喜欢内外一致的稳定性", v:"old"}, {t:"看心情，我喜欢不可预测的灵魂", v:"mid"}] },
-        { q: "最后，如果你要送他一份礼物，你会选？", a: [{t:"一个改变生活方式的高科技产品", v:"sci"}, {t:"一首诗或一张亲手制作的CD", v:"art"}, {t:"一件能体现其身份质感的定制单品", v:"biz"}] }
-    ];
-
-    <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人格代码解析：智性恋爱报告</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --brand-mint: #98d8d8;
-            --brand-purple: #a29bfe;
-            --bg-soft: #fcfdfe;
-            --text-main: #2d3436;
-            --text-sub: #636e72;
-            --card-shadow: 0 10px 40px rgba(0,0,0,0.03);
-        }
-        body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background-color: var(--bg-soft);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        #app {
-            width: 90%;
-            max-width: 480px;
-            padding: 20px;
-        }
-        .container {
-            background: #fff;
-            border-radius: 32px;
-            padding: 40px 30px;
-            box-shadow: var(--card-shadow);
-            text-align: center;
-        }
-        /* 进度条 */
-        .progress-bar { height: 3px; background: #f0f0f0; border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
-        #progress-inner { height: 100%; background: var(--brand-mint); width: 0%; transition: 0.5s ease; }
+        <div class="section-title">人格画像 / Profile</div>
+        <div class="content" id="res-desc"></div>
         
-        /* 题目样式 */
-        h2 { font-size: 1.3rem; line-height: 1.6; margin-bottom: 30px; font-weight: 600; }
-        .option-btn {
-            display: block; width: 100%; padding: 20px; margin-bottom: 15px;
-            border: 1px solid #f0f0f0; border-radius: 20px; background: #fff;
-            cursor: pointer; transition: 0.2s; font-size: 1rem; text-align: left;
-            color: var(--text-main);
-        }
-        .option-btn:hover { border-color: var(--brand-mint); background: #f9fdfd; transform: translateY(-2px); }
+        <div class="section-title">行为契合 / Synergy</div>
+        <div class="content" id="res-synergy"></div>
 
-        /* 结果页布局 */
-        #result-page { display: none; animation: slideUp 0.8s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        #radar-container { width: 100%; max-width: 300px; margin: 0 auto 30px; }
-        
-        .tag-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; }
-        .tag { padding: 8px 18px; border-radius: 50px; border: 1px solid #eee; font-size: 0.85rem; color: var(--text-sub); }
-        
-        .result-info { text-align: left; background: #fbfbfc; border-radius: 24px; padding: 25px; margin-top: 25px; }
-        .section-label { font-size: 0.8rem; font-weight: bold; color: var(--brand-mint); letter-spacing: 1px; margin-bottom: 10px; display: block; }
-        .section-title { font-size: 1.5rem; font-weight: 600; margin: 5px 0 15px; }
-        .section-content { font-size: 0.95rem; line-height: 1.8; color: var(--text-sub); margin-bottom: 20px; }
-        .quote-box { border-left: 4px solid var(--brand-purple); padding-left: 15px; font-style: italic; color: var(--text-main); font-size: 1rem; }
+        <div class="section-title">避雷指南 / Warning</div>
+        <div class="content" id="res-warning"></div>
 
-        .restart-btn {
-            margin-top: 30px; width: 100%; padding: 18px; border-radius: 20px;
-            background: var(--text-main); color: #fff; border: none; cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+        <div class="highlight-box" id="res-quote"></div>
 
-<div id="app">
-    <div id="quiz-page" class="container">
-        <div class="progress-bar"><div id="progress-inner"></div></div>
-        <div id="q-text">正在初始化智性题库...</div>
-        <div id="options-container"></div>
-    </div>
-
-    <div id="result-page" class="container">
-        <div id="radar-container"><canvas id="radarChart"></canvas></div>
-        
-        <div class="tag-box" id="res-tags"></div>
-
-        <div class="result-info">
-            <span class="section-label">THE PERSONALITY CODE</span>
-            <div class="section-title" id="res-name"></div>
-            <div class="section-content" id="res-desc"></div>
-            
-            <span class="section-label">契合建议 / SYNERGY</span>
-            <div class="section-content" id="res-synergy"></div>
-
-            <div class="quote-box" id="res-quote"></div>
-        </div>
-        
-        <button class="restart-btn" onclick="location.reload()">重新开启解析</button>
+        <button class="restart-btn" onclick="location.reload()">Re-Test</button>
     </div>
 </div>
 
@@ -241,159 +118,80 @@
     ];
 
     const database = {
-        "HighSciOld": { name: "稳定态恒星", tags:["理性底色", "低内耗", "高掌控感"], desc: "他的人格由高密度的知识边界和定力组成。在他眼里，爱不是冲动，而是一种长期的守恒承诺。", synergy: "他能精准识别你的精神内耗。当你崩溃时，他不是灌鸡汤，而是帮你重构认知框架。", quote: "“在那颗恒星熄灭前，我都有足够的时间陪你虚度。”" },
-        "LowArtYoung": { name: "春日限定情绪体", tags:["感性至上", "少年感", "情绪价值"], desc: "他活在感官与直觉里。进取心对他而言，不如带你去追赶一场盛大的日落。", synergy: "他能带你找回失落已久的少女感。他的世界没有‘必须’，只有‘我想和你一起体验的所有可能’。", quote: "“别听那些大道理了，我们去天台看夕阳吧。”" },
-        "HighBizMid": { name: "博弈中的唯一变量", tags:["势均力敌", "精英属性", "特权感"], desc: "极致的利己主义者，直到遇见你。他在清醒的利弊蓝图中，把你划为了不计成本投入的‘终身资产’。", synergy: "这种‘唯独对你例外’的特权感是最高诚意。他能为你阻挡一切杂音，给你硬核支持。", quote: "“我全仓买入你，不设止损。”" },
-        // ... 其他27种可按此格式扩展
+        "HighSciOld": { name: "稳定态恒星", desc: "他的人格由高密度的知识边界和定力组成。在他眼里，爱不是冲动，而是一种长期的、低熵的守恒承诺。", synergy: "他能精准识别你的精神内耗并提供逻辑支持。当你崩溃时，他不是给你灌鸡汤，而是帮你重构认知框架。", warning: "习惯用逻辑代替共情，有时会显得像一台精准却冰冷的仪器。", quote: "“在那颗恒星熄灭前，我都有足够的时间陪你虚度。”" },
+        "HighSciMid": { name: "极地观测者", desc: "势均力敌的理性派。他认为‘我爱你’的最佳证明不是陪伴，而是精神疆域的共享。", synergy: "相处时，你们不仅是恋人，更是能陪你在思想废墟里重建文明的合伙人。", warning: "会有一定的‘知识傲慢’，分歧时他倾向于用论据打败你，而非安慰你。", quote: "“所有的公式都推导过，唯独爱你，是我的先验真理。”" },
+        "HighSciYoung": { name: "进化中的算法内核", desc: "他像一段处于爆发期的底层代码，逻辑极度自洽，骨子里是对世界规律的极致探索。", synergy: "处理矛盾像Debug一样高效。他爱你的方式是为你构建一个清晰且不断优化的生活环境。", warning: "会将你的感性诉求误读为待解决的故障，在情感共振上略显迟钝。", quote: "“你是这个混乱世界里，我唯一想要解析的完美逻辑。”" },
+        "HighArtOld": { name: "古典主义守夜人", desc: "沉稳、悲悯、见识过人性的幽微。他带有某种怀旧的儒雅，用底蕴为你筑起避难所。", synergy: "他懂你所有的‘言外之意’。相处时，那种被全然理解的深度共鸣，能治愈不被看见的焦虑。", warning: "内心深处有一块坚硬的孤独，那种若即若离的疏离感有时会令人不安。", quote: "“别急着合上书，这一章的哀愁，我们可以聊一整晚。”" },
+        "HighArtMid": { name: "精神游吟领袖", desc: "他用独特的视角解读世界。他不仅是恋人，更是能陪你在精神废墟里起舞的同类。", synergy: "价值高度同步。他能接住你所有零碎的梗和间歇性的悲观，这种‘接住’比礼物更有力。", warning: "过于追求灵魂自由，面对柴米油盐的琐碎时，他可能会习惯性撤离。", quote: "“辞藻太苍白了，不如我们现在出发，去大理看一场雨？”" },
+        "HighArtYoung": { name: "极锋审美孤儿", desc: "极具爆发力的艺术人格。他渴望在世界留下痕迹，并将你视为他审美体系的最高坐标。", synergy: "能带你体验极度的情感高潮。你们的关系是一场关于感官与表达的共同冒险。", warning: "生命力强但也具破坏性。创作瓶颈或自尊受挫时，负面情绪可能会波及你。", quote: "“你是这枯燥现实里，我唯一想私藏的艺术孤本。”" },
+        "HighBizOld": { name: "秩序位移掌控者", desc: "顶级权势与风度。他深知权力的边界，通过构建安全区来示爱，而非打压。", synergy: "他最迷人的地方在于‘松弛感’。他无需证明什么，所以能给你最广阔的支持空间。", warning: "有着极其厚重的社会面具，很难分辨他的温柔是出于真爱还是社交素养。", quote: "“天塌下来我有办法。现在，去车里睡一觉。”" },
+        "HighBizMid": { name: "博弈中的唯一变量", desc: "极致的利己主义者，直到遇见你。他在极其清醒的利弊蓝图中，把你划为‘终身资产’。", synergy: "这种‘特权感’是最高诚意。他能为你阻挡社会杂音，给你最硬核的资源支持。", warning: "不要挑战他的‘控制欲’。失去掌控会让他产生焦虑，进而影响关系。", quote: "“我全仓买入你，不设止损。”" },
+        "HighBizYoung": { name: "高能级掠食者", desc: "职场捕猎者，将果断带入关系。他在外杀伐果断，却唯独在你面前表现出认输。", synergy: "爱具有强防御性。他会像经营S级项目一样经营你们的未来，务实且目标明确。", warning: "习惯将社交辞令带回家。当你需要他走心时，他可能在习惯性进行权衡。", quote: "“这场博弈我谈成了。以后，换我来当你遮风挡雨的壳。”" },
+        "LowSciOld": { name: "避世森林匠人", desc: "稳定的手工人格。他用一生深耕极小爱好，性格如矿物般沉稳耐磨。", synergy: "他不会承诺宏大未来，但会亲手缝补你生活的细碎裂痕。缓慢的陪伴最为难得。", warning: "生活方式极度固定。如果你向往新鲜感，他的这种稳定可能会让你感到沉闷。", quote: "“这把摇椅够坐一辈子。阳光正好，别急着赶路。”" },
+        "LowSciMid": { name: "逻辑废墟隐士", desc: "聪明但拒绝‘卷’。他看透了规则的虚幻，转而追求技术性的自给自足与精神自由。", synergy: "浪漫是‘反效率’的。他愿意花一下午为你调试咖啡，那种缓慢匠心是时代的稀缺品。", warning: "有‘社交退缩’。当你的生活需要更多物质提升时，他的不作为会成为矛盾点。", quote: "“既然世界注定熵增，那我们就一起在混乱里虚度光阴吧。”" },
+        "LowSciYoung": { name: "温室里的自然百科", desc: "对社会竞争表现出天真的迟钝。他更爱观察标本，世界对他来说透明且无攻击性。", synergy: "相处像呼吸新鲜空气。他没有心机，会因为发现一片奇形叶子第一时间跑向你分享。", warning: "面对残酷生存或职场纠纷时，他无法提供建议，甚至需要你反过来保护他。", quote: "“这块琥珀是千万年前的松脂，刚好和你今天的裙子一个颜色。”" },
+        "LowArtOld": { name: "深夜电台男声", desc: "洞悉人性后的极致温柔。他不再试图改变世界，只想温柔接住每一个坠落的瞬间。", synergy: "最好的倾听者。在你疲惫时，他不会讲道理，只会点亮暖灯陪你坐着，听你废话。", warning: "温柔有时是‘防御机制’。他通过包容所有人避免冲突，很难触达其真实愤怒。", quote: "“睡不着吗？那我再给你讲一个关于春天还没来的故事。”" },
+        "LowArtMid": { name: "非定义漫游者", desc: "拒绝被标签固化。他是流动的、自由的，陪你在刻板世界里‘越轨’。", synergy: "关系没有终点站。他给你的是一种‘无论你变成什么样我都觉得有趣’的自由感。", warning: "极度自由意味着极度不稳定。很难在他身上找到关于‘家’的确定性承诺。", quote: "“这是此刻的你，也是余生的我。明天不在一起也没关系。”" },
+        "LowArtYoung": { name: "春日限定情绪体", desc: "满溢的情绪。进取心对他而言，不如带你去追赶一场盛大的日落。", synergy: "带你找回失落已久的‘少女感’。他的世界没有‘必须’，只有‘我想和你尝试’。", warning: "情绪导向型，一旦新鲜感消退或面临现实，可能缺乏长期责任感。", quote: "“姐姐，快看！今天的云像不像刚才吃掉的那朵棉花糖？”" },
+        "LowBizOld": { name: "古董时间的绅士", desc: "优雅、慢速、有审美门槛。追求跨越时间的质感，而非速食激情。", synergy: "带你体验‘慢慢爱’。他认为最珍贵的资产不是金钱，而是共同消磨的悠长岁月。", warning: "‘贵气’带有批判性。如果你不符合其审美，他可能会委婉地表现出挑剔。", quote: "“这茶需要等，就像这世间所有美好的事，都值得慢慢等。”" },
+        "LowBizMid": { name: "风险对冲隐士", desc: "大风大浪后的归隐者。他只想构建一个微观、安稳的小确幸体系。", synergy: "他比谁都懂稳定，能给你最踏实的情绪支撑。他不再追求增量，只追求存量幸福。", warning: "会显得有些‘丧’。如果你充满干劲，他的消极防御可能会消耗你的能量。", quote: "“报表看完了。明天我们去乡下种花吧，我是认真的。”" },
+        "LowBizYoung": { name: "名利场外的退火者", desc: "见过繁华后的慵懒者。他懂所有社交规则，却唯独在你面前展示真实的任性。", synergy: "懂规则但不玩规则。会推掉酒局陪你在路边吃馄饨，这种‘降级’是他的示爱。", warning: "有‘公子哥’习性，对家务或实际生活压力处理能力低，需你多费心。", quote: "“名利场太无聊了。我不去了，陪你吃火锅好吗？”" }
     };
 
     let current = 0;
     let scores = { sci:0, art:0, biz:0, young:0, old:0, mid:0, high:0, low:0 };
 
     function showNext() {
-        if (current >= questions.length) { calculate(); return; }
-        document.getElementById('progress-inner').style.width = (current/questions.length)*100 + '%';
+        if (current >= questions.length) {
+            calculate();
+            return;
+        }
         const q = questions[current];
+        document.getElementById('progress-bar').style.width = (current/questions.length)*100 + '%';
+        document.getElementById('q-num').innerText = 'Step ' + (current + 1).toString().padStart(2, '0');
         document.getElementById('q-text').innerText = q.q;
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
         q.a.forEach(opt => {
             const btn = document.createElement('button');
-            btn.className = 'option-btn';
+            btn.className = 'option';
             btn.innerText = opt.t;
-            btn.onclick = () => { scores[opt.v]++; current++; showNext(); };
-            container.appendChild(btn);
+            btn.onclick = () => {
+                scores[opt.v]++;
+                current++;
+                showNext();
+            };
+            optionsDiv.appendChild(btn);
         });
     }
 
     function calculate() {
         document.getElementById('quiz-page').style.display = 'none';
-        document.getElementById('result-page').style.display = 'block';
+        document.getElementById('loading').style.display = 'block';
 
-        let career = scores.high >= scores.low ? "High" : "Low";
-        let field = (scores.sci >= scores.art && scores.sci >= scores.biz) ? "Sci" : (scores.art >= scores.biz ? "Art" : "Biz");
-        let age = (scores.old >= scores.young && scores.old >= scores.mid) ? "Old" : (scores.young >= scores.old && scores.young >= scores.mid) ? "Young" : "Mid";
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('result-page').style.display = 'block';
 
-        const key = career + field + age;
-        const res = database[key] || database["HighBizMid"];
+            let career = scores.high >= scores.low ? "High" : "Low";
+            let field = (scores.sci >= scores.art && scores.sci >= scores.biz) ? "Sci" : 
+                        (scores.art >= scores.biz ? "Art" : "Biz");
+            let age = (scores.old >= scores.young && scores.old >= scores.mid) ? "Old" : 
+                      (scores.young >= scores.old && scores.young >= scores.mid) ? "Young" : "Mid";
 
-        document.getElementById('res-name').innerText = res.name;
-        document.getElementById('res-desc').innerText = res.desc;
-        document.getElementById('res-synergy').innerText = res.synergy;
-        document.getElementById('res-quote').innerText = res.quote;
+            const key = career + field + age;
+            // 兜底逻辑：如果该组合未定义文案，则按优先级寻找相似项
+            const res = database[key] || database[career+field+"Old"] || database["HighBizOld"];
 
-        // 生成标签
-        const tagBox = document.getElementById('res-tags');
-        res.tags.forEach(t => {
-            const span = document.createElement('span');
-            span.className = 'tag';
-            span.innerText = '#' + t;
-            tagBox.appendChild(span);
-        });
-
-        // 绘制雷达图
-        drawChart();
-    }
-
-    function drawChart() {
-        const ctx = document.getElementById('radarChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['智性', '感性', '野心', '稳定性', '依赖度'],
-                datasets: [{
-                    label: '人格维度',
-                    data: [scores.sci*2, scores.art*2, scores.high*2, scores.old*2, scores.young*2],
-                    backgroundColor: 'rgba(152, 216, 216, 0.4)',
-                    borderColor: '#98d8d8',
-                    pointBackgroundColor: '#a29bfe',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                scales: { r: { min: 0, max: 10, ticks: { display: false }, grid: { color: '#f0f0f0' } } },
-                plugins: { legend: { display: false } }
-            }
-        });
+            document.getElementById('res-name').innerText = "【" + res.name + "】";
+            document.getElementById('res-desc').innerText = res.desc;
+            document.getElementById('res-synergy').innerText = res.synergy;
+            document.getElementById('res-warning').innerText = res.warning;
+            document.getElementById('res-quote').innerText = res.quote;
+        }, 1500);
     }
 
     showNext();
 </script>
 </body>
-</html>
-
-    let current = 0;
-    let scores = { sci:0, art:0, biz:0, young:0, old:0, mid:0, high:0, low:0 };
-
-    function showNext() {
-        if (current >= questions.length) { calculate(); return; }
-        document.getElementById('progress-inner').style.width = (current/questions.length)*100 + '%';
-        const q = questions[current];
-        document.getElementById('q-text').innerText = q.q;
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        q.a.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt.t;
-            btn.onclick = () => { scores[opt.v]++; current++; showNext(); };
-            container.appendChild(btn);
-        });
-    }
-
-    function calculate() {
-        document.getElementById('quiz-page').style.display = 'none';
-        document.getElementById('result-page').style.display = 'block';
-
-        let career = scores.high >= scores.low ? "High" : "Low";
-        let field = (scores.sci >= scores.art && scores.sci >= scores.biz) ? "Sci" : (scores.art >= scores.biz ? "Art" : "Biz");
-        let age = (scores.old >= scores.young && scores.old >= scores.mid) ? "Old" : (scores.young >= scores.old && scores.young >= scores.mid) ? "Young" : "Mid";
-
-        const key = career + field + age;
-        const res = database[key] || database["HighBizMid"];
-
-        document.getElementById('res-name').innerText = res.name;
-        document.getElementById('res-desc').innerText = res.desc;
-        document.getElementById('res-synergy').innerText = res.synergy;
-        document.getElementById('res-quote').innerText = res.quote;
-
-        // 生成标签
-        const tagBox = document.getElementById('res-tags');
-        res.tags.forEach(t => {
-            const span = document.createElement('span');
-            span.className = 'tag';
-            span.innerText = '#' + t;
-            tagBox.appendChild(span);
-        });
-
-        // 绘制雷达图
-        drawChart();
-    }
-
-    function drawChart() {
-        const ctx = document.getElementById('radarChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['智性', '感性', '野心', '稳定性', '依赖度'],
-                datasets: [{
-                    label: '人格维度',
-                    data: [scores.sci*2, scores.art*2, scores.high*2, scores.old*2, scores.young*2],
-                    backgroundColor: 'rgba(152, 216, 216, 0.4)',
-                    borderColor: '#98d8d8',
-                    pointBackgroundColor: '#a29bfe',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                scales: { r: { min: 0, max: 10, ticks: { display: false }, grid: { color: '#f0f0f0' } } },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    showNext();
-</script>
-</body>
-</html>
 </html>
